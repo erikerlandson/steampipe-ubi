@@ -18,9 +18,6 @@ RUN echo \
  && rm -rf /tmp/openshift-client-linux-${OC_CLIENT_RELEASE}.tar.gz \
  && echo
 
-ENV STEAMPIPE_INSTALL_DIR=/opt/steampipe \
-    STEAMPIPE_UPDATE_CHECK=false
-
 RUN echo \
  && cd /tmp \
  && wget -nv https://github.com/turbot/steampipe/releases/download/0.5.1/steampipe_linux_amd64.tar.gz \
@@ -33,8 +30,17 @@ RUN echo \
  && echo
 
 COPY ./write-pod-kubeconfig /opt/steampipe/write-pod-kubeconfig
+COPY ./kubernetes.spc /opt/steampipe/.steampipe/config/kubernetes.spc
+
+USER root:0
+RUN chmod -R g+rwX /opt/steampipe
 
 # emulate anonumous uid
 USER 9999:0
+
+ENV USER=steampipe \
+    HOME=/opt/steampipe \
+    STEAMPIPE_INSTALL_DIR=/opt/steampipe/.steampipe \
+    STEAMPIPE_UPDATE_CHECK=false
 
 CMD /opt/steampipe service start --database-listen network --database-port 9193
