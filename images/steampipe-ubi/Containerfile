@@ -1,0 +1,40 @@
+FROM registry.access.redhat.com/ubi8/ubi-minimal:8.4
+
+USER root:0
+RUN microdnf install wget tar gzip shadow-utils \
+ && mkdir -p /opt/steampipe \
+ && chmod -R g+rwX /opt \
+ && useradd --uid 9998 --gid 0 steampipe --base-dir /opt
+
+WORKDIR /opt/steampipe
+USER steampipe:0
+
+ENV OC_CLIENT_RELEASE=4.6.0-0.okd-2021-01-23-132511
+RUN echo \
+ && cd /tmp \
+ && wget -nv https://github.com/openshift/okd/releases/download/${OC_CLIENT_RELEASE}/openshift-client-linux-${OC_CLIENT_RELEASE}.tar.gz \
+ && tar xzf openshift-client-linux-${OC_CLIENT_RELEASE}.tar.gz \
+ && mv kubectl /opt/steampipe \
+ && rm -rf /tmp/openshift-client-linux-${OC_CLIENT_RELEASE}.tar.gz \
+ && echo
+
+ENV STEAMPIPE_INSTALL_DIR=/opt/steampipe \
+    STEAMPIPE_UPDATE_CHECK=false
+
+RUN echo \
+ && cd /tmp \
+ && wget -nv https://github.com/turbot/steampipe/releases/download/0.5.1/steampipe_linux_amd64.tar.gz \
+ && tar xzf steampipe_linux_amd64.tar.gz \
+ && mv steampipe /opt/steampipe/ \
+ && rm -rf /tmp/steampipe_linux_amd64.tar.gz \
+ && cd /opt/steampipe \
+ && ./steampipe plugin install steampipe \
+ && ./steampipe plugin install kubernetes \
+ && echo
+
+COPY ./write-pod-kubeconfig /opt/steampipe/write-pod-kubeconfig
+
+# emulate anonumous uid
+USER 9999:0
+
+CMD /opt/steampipe service start --database-listen network --database-port 9193
