@@ -45,4 +45,7 @@ ENV USER=steampipe \
     STEAMPIPE_INSTALL_DIR=/opt/steampipe/.steampipe \
     STEAMPIPE_UPDATE_CHECK=false
 
+# This errors out during the container build too (container build still completes)
+RUN steampipe query "select name from steampipe_registry_plugin;"
+
 CMD /opt/steampipe service start --database-listen network --database-port 9193
