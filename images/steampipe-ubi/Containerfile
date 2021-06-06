@@ -9,6 +9,8 @@ RUN microdnf install wget tar gzip shadow-utils \
 WORKDIR /opt/steampipe
 USER steampipe:0
 
+# with write-pod-kubeconfig don't think I need this, but I'll leave it for now
+# in case it is useful for debugging
 ENV OC_CLIENT_RELEASE=4.6.0-0.okd-2021-01-23-132511
 RUN echo \
  && cd /tmp \
@@ -39,6 +41,7 @@ USER steampipe:0
 
 ENV USER=steampipe \
     HOME=/opt/steampipe \
+    PATH=/opt/steampipe:$PATH \
     STEAMPIPE_INSTALL_DIR=/opt/steampipe/.steampipe \
     STEAMPIPE_UPDATE_CHECK=false
 
