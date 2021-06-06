@@ -26,11 +26,11 @@ RUN echo \
  && rm -rf /tmp/steampipe_linux_amd64.tar.gz \
  && cd /opt/steampipe \
  && ./steampipe plugin install steampipe \
- && ./steampipe plugin install kubernetes \
+ #&& ./steampipe plugin install kubernetes \
  && echo
 
 COPY ./write-pod-kubeconfig /opt/steampipe/write-pod-kubeconfig
-COPY ./kubernetes.spc /opt/steampipe/.steampipe/config/kubernetes.spc
+#COPY ./kubernetes.spc /opt/steampipe/.steampipe/config/kubernetes.spc
 
 USER root:0
 RUN chmod -R g+rwX /opt/steampipe
