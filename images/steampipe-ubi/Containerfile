@@ -35,8 +35,7 @@ COPY ./kubernetes.spc /opt/steampipe/.steampipe/config/kubernetes.spc
 USER root:0
 RUN chmod -R g+rwX /opt/steampipe
 
-# emulate anonumous uid
-USER 9999:0
+USER steampipe:0
 
 ENV USER=steampipe \
     HOME=/opt/steampipe \
